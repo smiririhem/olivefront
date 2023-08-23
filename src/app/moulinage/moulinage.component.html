@@ -1,0 +1,141 @@
+<h3>Moulinage</h3>
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle text-nowrap">
+            <thead>
+              <tr>
+                <th style="width: 2%" class="text-dark font-medium fs-4">Id</th>
+                <th style="width: 10%" class="text-dark font-medium fs-4">Date Reception</th>
+                <th style="width: 3%" class="text-dark font-medium fs-4">Quantité(L)</th>
+                <th style="width: 5%" class="text-dark font-medium fs-4">Moulin</th>
+                <th style="width: 25%" class="text-dark font-medium fs-4">Type Extraction</th>
+                <th style="width: 5%" class="text-dark font-medium fs-4">Varieté</th>
+                <th style="width: 35%" class="text-dark font-medium fs-4">Lots Olives</th>
+                <th style="width: 5%" class="text-dark font-medium fs-4">
+                  <button class="btn btn-outline-primary" (click)="operation = 'add'; initMoulinage();scroll(target)">Ajouter</button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let moulinage of moulinagesList">
+                <td>{{ moulinage.id }}</td>
+                <td>{{ moulinage.dateMoulinage | date: 'yyyy-MM-dd' }}</td>
+                <td>{{ moulinage.quantite }}</td>
+                <td  placement="top" container="body" [ngbTooltip]=" moulinage.moulin?.details">{{ moulinage.moulin?.nom }}</td>
+                <td>{{ moulinage.typeExtraction }}</td>
+                <td>{{moulinage.variete}}</td>
+                <td>
+                  <select style="width:100%" id="multiple-checkboxes" multiple="multiple">
+                    <option *ngFor="let lotolive of moulinage.lotOlives" [value]="lotolive.id">
+                     Id : {{lotolive.id }} , Quantite : {{lotolive.quantite }}L,  Nom Berger : {{lotolive?.berger?.nom }}</option>
+                  </select>
+                </td>
+                <td>
+                  <button class="btn btn-outline-primary" (click)="onEdit(moulinage);scroll(target)">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn btn-outline-danger" (click)="operation = 'remove'; selectedMoulinage = moulinage;scroll(target)">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+
+          <div class="d-flex justify-content-between p-2">
+            <ngb-pagination [collectionSize]="collectionSize" [(page)]="page" [pageSize]="pageSize"
+              (pageChange)="refreshMoulinages()">
+            </ngb-pagination>
+
+            <select class="form-select" style="width: auto" [(ngModel)]="pageSize"
+              (ngModelChange)="refreshMoulinages()">
+              <option [ngValue]="5">5 items per page</option>
+              <option [ngValue]="10">10 items per page</option>
+              <option [ngValue]="50">50 items per page</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" #target>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header bg-info text-white">
+        {{ operation === 'add' ? 'Ajouter Moulinage' : operation === 'edit' ? 'Modifier Moulinage' : operation ===
+        'remove' ? 'Supprimer Moulinage' : '' }}
+      </div>
+      <div class="card-body">
+        <div *ngIf="operation === 'add' || operation === 'edit'">
+          <form [formGroup]="moulinageForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+              <label>Date Moulinage:</label>
+              <input type="date" class="form-control" placeholder="yyyy/MM/dd" formControlName="dateMoulinage"
+                [(ngModel)]="selectedMoulinage.dateMoulinage">
+            </div>
+            <div class="form-group">
+              <label>Quantité (L) :</label>
+              <input type="number" class="form-control" formControlName="quantite"
+                [(ngModel)]="selectedMoulinage.quantite">
+            </div>
+            <div class="form-group">
+              <label>Type d'extraction :</label>
+              <select class="form-control" formControlName="typeExtraction"
+                [(ngModel)]="selectedMoulinage.typeExtraction">
+                <option *ngFor="let extractionOption of extractionOptions" [value]="extractionOption">{{
+                  extractionOption }}</option>
+              </select>
+            </div>
+            <br>
+            <div class="form-group">
+              <label>Moulin :</label>
+              <select class="form-control" formControlName="moulin_id" [(ngModel)]="selectedMoulinage.moulin_id">
+                <option *ngFor="let moulinOption of moulinOptions" [value]="moulinOption.id">{{ moulinOption.nom }}
+                </option>
+              </select>
+            </div>
+            <br>
+            <div class="form-control">
+              <select class="form-select" style="width: auto" formControlName="variete"
+                [(ngModel)]="selectedMoulinage.variete" (ngModelChange)="onChangeVariete()">
+                <option *ngFor="let variete of varieteOptions" [value]="variete">{{variete }}</option>
+              </select>
+            </div>
+            <br>
+            <div class="form-control">
+              <select style="width:100%" id="multiple-checkboxes" multiple="multiple" formControlName="lotOlivesIds"
+                [(ngModel)]="selectedMoulinage.lotOlivesIds">
+                <option *ngFor="let lotolive of getLotOlivesByVariete(selectedMoulinage)" [value]="lotolive.id">
+                  {{lotolive.id }}
+                </option>
+              </select>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-success" [disabled]="moulinageForm.pristine || moulinageForm.invalid">
+              {{ operation === 'add' ? 'Ajouter' : operation === 'edit' ? 'Modifier' : '' }}
+            </button>
+          </form>
+        </div>
+        <div *ngIf="operation === 'remove'">
+          <p class="card-title">
+            Id : {{ selectedMoulinage.id }}
+          </p>
+          <p>
+            Voulez-vous supprimer ce moulinage ?
+          </p>
+          <button class="btn btn-danger" (click)="deleteMoulinage()"
+            [disabled]="!selectedMoulinage.id">Confirmer</button>
+          <button class="btn btn-secondary" (click)="operation = 'add'; initMoulinage();">Annuler</button>
+        </div>
+      </div>
+      <div class="card-footer">
+      </div>
+    </div>
+  </div>
+</div>

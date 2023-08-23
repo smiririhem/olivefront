@@ -1,0 +1,92 @@
+<h3>Berger</h3>
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle text-nowrap">
+            <thead>
+            <tr>
+              <th class="text-dark font-medium fs-4">Id</th>
+              <th class="text-dark font-medium fs-4" h>Nom</th>
+              <th class="text-dark font-medium fs-4">Details</th>
+              <th class="text-dark font-medium fs-4">
+                <button class="btn btn-outline-primary" (click)="operation = 'add'; initBerger();">Ajouter</button>
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let berger of bergersList">
+              <td>{{ berger.id }}</td>
+              <td>{{ berger.nom }}</td>
+              <td>{{ berger.details }}</td>
+              <td>
+                <button class="btn btn-outline-primary" (click)="operation = 'edit'; selectedBerger = berger;">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline-danger" (click)="operation = 'remove'; selectedBerger = berger;">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+
+
+          <div class="d-flex justify-content-between p-2">
+            <ngb-pagination [collectionSize]="collectionSize" [(page)]="page" [pageSize]="pageSize"
+                            (pageChange)="refreshBergers()">
+            </ngb-pagination>
+
+            <select class="form-select" style="width: auto" [(ngModel)]="pageSize" (ngModelChange)="refreshBergers()">
+              <option [ngValue]="5">5 items par page</option>
+              <option [ngValue]="10">10 items par page</option>
+              <option [ngValue]="50">50 items par page</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header bg-info text-white">
+        {{ operation === 'add' ? 'Ajouter Berger' : operation === 'edit' ? 'Modifier Berger' : operation === 'remove'
+        ? 'Supprimer Berger' : '' }}
+      </div>
+      <div class="card-body">
+        <div *ngIf="operation === 'add' || operation === 'edit'">
+          <form [formGroup]="bergerForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+              <label>Nom:</label>
+              <input type="text" class="form-control" formControlName="nom" [(ngModel)]="selectedBerger.nom">
+            </div>
+            <div class="form-group">
+              <label>Details</label>
+              <input type="text" class="form-control" formControlName="details" [(ngModel)]="selectedBerger.details">
+            </div>
+
+            <br>
+            <button type="submit" class="btn btn-success" [disabled]="bergerForm.pristine || bergerForm.invalid">
+              {{ operation === 'add' ? 'Ajouter' : operation === 'edit' ? 'Modifier' : '' }}
+            </button>
+          </form>
+        </div>
+        <div *ngIf="operation === 'remove'">
+          <p class="card-title">
+            Id : {{ selectedBerger.id }}
+          </p>
+          <p>
+            Voulez-vous supprimer ce berger ?
+          </p>
+          <button class="btn btn-danger" (click)="deleteBerger()" [disabled]="!selectedBerger.id">Confirmer</button>
+          <button class="btn btn-secondary" (click)="operation = 'add'; initBerger();">Annuler</button>
+        </div>
+      </div>
+      <div class="card-footer">
+      </div>
+    </div>
+  </div>
+</div>
+

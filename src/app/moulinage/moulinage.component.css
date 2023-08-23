@@ -1,0 +1,8 @@
+.btn {
+    margin: 5px;
+}
+
+:host ::ng-deep .table-bordered > :not(caption) > * > * {
+    padding-top: 1px !important;
+    padding-bottom: 1px !important;
+}

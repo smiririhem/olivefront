@@ -1,0 +1,91 @@
+<h3>Solvant</h3>
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle text-nowrap">
+            <thead>
+            <tr>
+              <th class="text-dark font-medium fs-4">Id</th>
+              <th class="text-dark font-medium fs-4" h>Solvant</th>
+              <th class="text-dark font-medium fs-4">Mesure</th>
+              <th class="text-dark font-medium fs-4">
+                <button class="btn btn-outline-primary" (click)="operation = 'add'; initSolvant();">Ajouter</button>
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let solvant of solvantsList">
+              <td>{{ solvant.id }}</td>
+              <td>{{ solvant.typeSolvant }}</td>
+              <td>{{ solvant.mesure }}</td>
+              <td>
+                <button class="btn btn-outline-primary" (click)="operation = 'edit'; selectedSolvant = solvant;">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline-danger" (click)="operation = 'remove'; selectedSolvant = solvant;">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+
+
+          <div class="d-flex justify-content-between p-2">
+            <ngb-pagination [collectionSize]="collectionSize" [(page)]="page" [pageSize]="pageSize"
+                            (pageChange)="refreshSolvants()">
+            </ngb-pagination>
+
+            <select class="form-select" style="width: auto" [(ngModel)]="pageSize" (ngModelChange)="refreshSolvants()">
+              <option [ngValue]="5">5 items par page</option>
+              <option [ngValue]="10">10 items par page</option>
+              <option [ngValue]="50">50 items par page</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header bg-info text-white">
+          {{ operation === 'add' ? 'Ajouter Solvant' : operation === 'edit' ? 'Modifier Solvant' : operation === 'remove' ? 'Supprimer Solvant' : '' }}
+        </div>
+        <div class="card-body">
+          <div *ngIf="operation === 'add' || operation === 'edit'">
+            <form [formGroup]="solvantForm" (ngSubmit)="onSubmit()">
+              <div class="form-group">
+                <label>Mesure(L):</label>
+                <input type="number" class="form-control" formControlName="mesure" [(ngModel)]="selectedSolvant.mesure">
+              </div>
+              <div class="form-group">
+                <label>Type solvant :</label>
+                <select class="form-control" formControlName="typeSolvant" [(ngModel)]="selectedSolvant.typeSolvant">
+                  <option *ngFor="let solvantOption of solvantOptions" [value]="solvantOption">{{solvantOption }}</option>
+                </select>
+              </div>
+
+              <button type="submit" class="btn btn-success" [disabled]="solvantForm.pristine || solvantForm.invalid">
+                {{ operation === 'add' ? 'Ajouter' : operation === 'edit' ? 'Modifier' : '' }}
+              </button>
+            </form>
+          </div>
+          <div *ngIf="operation === 'remove'">
+            <p class="card-title">
+              Id : {{ selectedSolvant.id }}
+            </p>
+            <p>
+              Voulez-vous supprimer ce solvant ?
+            </p>
+            <button class="btn btn-danger" (click)="deleteSolvant()" [disabled]="!selectedSolvant.id">Confirmer</button>
+            <button class="btn btn-secondary" (click)="operation = 'add'; initSolvant();">Annuler</button>
+          </div>
+        </div>
+        <div class="card-footer">
+        </div>
+      </div>
+    </div>
+  </div>

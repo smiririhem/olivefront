@@ -1,0 +1,113 @@
+<h3>Lot olive</h3>
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle text-nowrap">
+            <thead>
+            <tr>
+              <th class="text-dark font-medium fs-4">Id</th>
+              <th class="text-dark font-medium fs-4" h>Date Récolte</th>
+              <th class="text-dark font-medium fs-4">Variete</th>
+              <th class="text-dark font-medium fs-4">Quantité(kg)</th>
+              <th class="text-dark font-medium fs-4">Berger</th>
+              <th class="text-dark font-medium fs-4">Mouliné?</th>
+              <th class="text-dark font-medium fs-4">
+                <button class="btn btn-outline-primary" (click)="operation = 'add'; initLotolive();">Ajouter</button>
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let lotolive of lotolivesList">
+              <td>{{ lotolive.id }}</td>
+              <td>{{ lotolive.dateRecolte }}</td>
+              <td>{{ lotolive.variete }}</td>
+              <td>{{ lotolive.quantite }}</td>
+              <td>{{ lotolive.berger?.nom }}</td>
+              <td>{{ lotolive.mouline }}</td>
+              <td>
+                <button class="btn btn-outline-primary" (click)="operation = 'edit'; selectedLotolive = lotolive;">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline-danger" (click)="operation = 'remove'; selectedLotolive = lotolive;">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+
+
+          <div class="d-flex justify-content-between p-2">
+            <ngb-pagination [collectionSize]="collectionSize" [(page)]="page" [pageSize]="pageSize"
+                            (pageChange)="refreshLotolives()">
+            </ngb-pagination>
+
+            <select class="form-select" style="width: auto" [(ngModel)]="pageSize" (ngModelChange)="refreshLotolives()">
+              <option [ngValue]="5">5 items per page</option>
+              <option [ngValue]="10">10 items per page</option>
+              <option [ngValue]="50">50 items per page</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header bg-info text-white">
+        {{ operation === 'add' ? 'Ajouter Lot olive' : operation === 'edit' ? 'Modifier Lot olive' : operation ===
+      'remove' ? 'Supprimer Lot olive' : '' }}
+      </div>
+      <div class="card-body">
+        <div *ngIf="operation === 'add' || operation === 'edit'">
+          <form [formGroup]="lotoliveForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+              <label>Date Récolte:</label>
+              <input type="date" class="form-control" placeholder="yyyy/MM/dd" formControlName="dateRecolte"
+                     [(ngModel)]="selectedLotolive.dateRecolte">
+            </div>
+            <div class="form-group">
+              <label>Quantité (Kg) :</label>
+              <input type="number" class="form-control" formControlName="quantite"
+                     [(ngModel)]="selectedLotolive.quantite">
+            </div>
+            <div class="form-group">
+              <label>Variete :</label>
+              <select class="form-control" formControlName="variete"
+                      [(ngModel)]="selectedLotolive.variete">
+                <option *ngFor="let varieteOption of varieteOptions" [value]="varieteOption">{{
+                  varieteOption }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Berger :</label>
+              <select class="form-control" formControlName="berger_id">
+                <option *ngFor="let bergerOption of bergersOptions" [value]="bergerOption.id">{{ bergerOption.nom }}
+                </option>
+              </select>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-success" [disabled]="lotoliveForm.pristine || lotoliveForm.invalid">
+              {{ operation === 'add' ? 'Ajouter' : operation === 'edit' ? 'Modifier' : '' }}
+            </button>
+          </form>
+        </div>
+        <div *ngIf="operation === 'remove'">
+          <p class="card-title">
+            Id : {{ selectedLotolive.id }}
+          </p>
+          <p>
+            Voulez-vous supprimer ce Lot olive ?
+          </p>
+          <button class="btn btn-danger" (click)="deleteLotolive()"
+                  [disabled]="!selectedLotolive.id">Confirmer</button>
+          <button class="btn btn-secondary" (click)="operation = 'add'; initLotolive();">Annuler</button>
+        </div>
+      </div>
+      <div class="card-footer">
+      </div>
+    </div>
+  </div>
+</div>
